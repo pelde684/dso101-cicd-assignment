@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Todo App</title>
+    <style>
+        body { font-family: Arial; max-width: 500px; margin: 50px auto; padding: 20px; background: #f0f0f0; }
+        .container { background: white; padding: 20px; border-radius: 10px; }
+        .todo-item { padding: 10px; margin: 5px 0; background: #f0f0f0; display: flex; justify-content: space-between; align-items: center; border-radius: 5px; }
+        button { padding: 8px 15px; cursor: pointer; border: none; border-radius: 5px; }
+        input { padding: 10px; width: 70%; margin-right: 10px; border: 1px solid #ddd; border-radius: 5px; }
+        .add-btn { background: #28a745; color: white; }
+        .add-btn:hover { background: #218838; }
+        .delete-btn { background: #dc3545; color: white; }
+        .delete-btn:hover { background: #c82333; }
+        h1 { color: #333; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📝 Todo List</h1>
+        <div style="display: flex; margin-bottom: 20px;">
+            <input type="text" id="taskInput" placeholder="Enter a task...">
+            <button class="add-btn" onclick="addTodo()">Add Task</button>
+        </div>
+        <div id="todoList"></div>
+    </div>
+
+    <script>
+        async function loadTodos() {
+            try {
+                const response = await fetch('/api/todos');
+                const todos = await response.json();
+                
+                const todoList = document.getElementById('todoList');
+                if (todos.length === 0) {
+                    todoList.innerHTML = '<p style="text-align: center; color: #888;">No tasks yet. Add one above!</p>';
+                    return;
+                }
+                
+                todoList.innerHTML = todos.map(todo => `
+                    <div class="todo-item">
+                        <span>${todo.task}</span>
+                        <button class="delete-btn" onclick="deleteTodo(${todo.id})">Delete</button>
+                    </div>
+                `).join('');
+            } catch(error) {
+                console.error('Error:', error);
+                document.getElementById('todoList').innerHTML = '<p style="color: red;">Error loading tasks. Make sure backend is running.</p>';
+            }
+        }
+
+        async function addTodo() {
+            const input = document.getElementById('taskInput');
+            const task = input.value.trim();
+            
+            if (!task) {
+                alert('Please enter a task');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/todos', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ task: task })
+                });
+                
+                if (response.ok) {
+                    input.value = '';
+                    loadTodos();
+                    console.log('Task added successfully!');
+                } else {
+                    const error = await response.json();
+                    alert('Failed to add task: ' + (error.error || 'Unknown error'));
+                }
+            } catch(error) {
+                console.error('Error adding task:', error);
+                alert('Error: ' + error.message);
+            }
+        }
+
+        async function deleteTodo(id) {
+            try {
+                await fetch(`/api/todos/${id}`, { method: 'DELETE' });
+                loadTodos();
+                console.log('Task deleted successfully!');
+            } catch(error) {
+                console.error('Error deleting task:', error);
+                alert('Error deleting task');
+            }
+        }
+
+        // Load todos when page loads
+        loadTodos();
+        
+        // Add task on Enter key
+        document.getElementById('taskInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addTodo();
+            }
+        });
+    </script>
+</body>
+</html>
