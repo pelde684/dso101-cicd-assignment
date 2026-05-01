@@ -1,18 +1,18 @@
 const express = require('express');
 const cors = require('cors');
-const path = require('path');
+const path = require('path');  // ← IMPORTANT: Add this line
 require('dotenv').config();
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Serve frontend static files
+// ← IMPORTANT: This line serves your HTML, CSS, and JS files
 app.use(express.static(path.join(__dirname, '../frontend')));
 
 const PORT = process.env.PORT || 5000;
 
-// Store todos
+// Store todos (in memory - resets on restart)
 let todos = [];
 
 // API Routes
@@ -37,16 +37,24 @@ app.post('/api/todos', (req, res) => {
     };
     
     todos.push(newTodo);
+    console.log('Added todo:', newTodo);
     res.status(201).json(newTodo);
 });
 
 app.delete('/api/todos/:id', (req, res) => {
     const id = parseInt(req.params.id);
+    const beforeCount = todos.length;
     todos = todos.filter(todo => todo.id !== id);
-    res.json({ message: 'Deleted' });
+    
+    if (beforeCount !== todos.length) {
+        console.log('Deleted todo with id:', id);
+        res.json({ message: 'Deleted successfully' });
+    } else {
+        res.status(404).json({ error: 'Todo not found' });
+    }
 });
 
-// Serve index.html for root route
+// ← IMPORTANT: This serves the HTML file when someone visits /
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend/index.html'));
 });

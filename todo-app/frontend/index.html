@@ -24,7 +24,7 @@
     </div>
 
     <script>
-        // Use relative path - works with both local and deployed
+        // ✅ USE RELATIVE URL - This works locally AND on Render
         const API_URL = '/api/todos';
 
         async function loadTodos() {
@@ -69,7 +69,6 @@
                 if (response.ok) {
                     input.value = '';
                     loadTodos();
-                    console.log('Task added successfully!');
                 } else {
                     alert('Failed to add task');
                 }

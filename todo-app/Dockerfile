@@ -9,7 +9,7 @@ RUN npm install
 # Copy backend code
 COPY backend/ ./
 
-# Copy frontend files
+# Copy frontend files (so they can be served)
 COPY frontend/ ./public/
 
 EXPOSE 5000
