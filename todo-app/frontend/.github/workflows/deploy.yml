@@ -2,11 +2,12 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: ["main"]
+    branches: ["main", "master"]
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -19,8 +20,8 @@ jobs:
 
       - name: Build and Push Docker Image
         run: |
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/todo-app:latest .
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/todo-app:latest
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/be-todo:latest .
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/be-todo:latest
 
       - name: Trigger Render Deployment
         run: |
