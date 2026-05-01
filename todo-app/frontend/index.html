@@ -5,13 +5,11 @@
     <style>
         body { font-family: Arial; max-width: 500px; margin: 50px auto; padding: 20px; background: #f0f0f0; }
         .container { background: white; padding: 20px; border-radius: 10px; }
-        .todo-item { padding: 10px; margin: 5px 0; background: #f0f0f0; display: flex; justify-content: space-between; align-items: center; border-radius: 5px; }
+        .todo-item { padding: 10px; margin: 5px 0; background: #f0f0f0; display: flex; justify-content: space-between; border-radius: 5px; }
         button { padding: 8px 15px; cursor: pointer; border: none; border-radius: 5px; }
         input { padding: 10px; width: 70%; margin-right: 10px; border: 1px solid #ddd; border-radius: 5px; }
         .add-btn { background: #28a745; color: white; }
-        .add-btn:hover { background: #218838; }
         .delete-btn { background: #dc3545; color: white; }
-        .delete-btn:hover { background: #c82333; }
         h1 { color: #333; text-align: center; }
     </style>
 </head>
@@ -26,9 +24,12 @@
     </div>
 
     <script>
+        // Use relative path - works with both local and deployed
+        const API_URL = '/api/todos';
+
         async function loadTodos() {
             try {
-                const response = await fetch('/api/todos');
+                const response = await fetch(API_URL);
                 const todos = await response.json();
                 
                 const todoList = document.getElementById('todoList');
@@ -45,7 +46,7 @@
                 `).join('');
             } catch(error) {
                 console.error('Error:', error);
-                document.getElementById('todoList').innerHTML = '<p style="color: red;">Error loading tasks. Make sure backend is running.</p>';
+                document.getElementById('todoList').innerHTML = '<p style="color: red;">Error loading tasks.</p>';
             }
         }
 
@@ -59,7 +60,7 @@
             }
             
             try {
-                const response = await fetch('/api/todos', {
+                const response = await fetch(API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ task: task })
@@ -70,34 +71,26 @@
                     loadTodos();
                     console.log('Task added successfully!');
                 } else {
-                    const error = await response.json();
-                    alert('Failed to add task: ' + (error.error || 'Unknown error'));
+                    alert('Failed to add task');
                 }
             } catch(error) {
-                console.error('Error adding task:', error);
-                alert('Error: ' + error.message);
+                console.error('Error:', error);
             }
         }
 
         async function deleteTodo(id) {
             try {
-                await fetch(`/api/todos/${id}`, { method: 'DELETE' });
+                await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
                 loadTodos();
-                console.log('Task deleted successfully!');
             } catch(error) {
-                console.error('Error deleting task:', error);
-                alert('Error deleting task');
+                console.error('Error:', error);
             }
         }
 
-        // Load todos when page loads
         loadTodos();
         
-        // Add task on Enter key
         document.getElementById('taskInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                addTodo();
-            }
+            if (e.key === 'Enter') addTodo();
         });
     </script>
 </body>
