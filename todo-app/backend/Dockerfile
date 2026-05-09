@@ -2,15 +2,10 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Copy backend package files
-COPY backend/package*.json ./
+COPY package*.json ./
 RUN npm install
 
-# Copy backend code
-COPY backend/ ./
-
-# Copy frontend files (so they can be served)
-COPY frontend/ ./public/
+COPY . ./
 
 EXPOSE 5000
 
