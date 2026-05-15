@@ -14,7 +14,7 @@ pipeline {
         stage('Checkout Code') {
             steps {
                 git branch: 'main',
-                url: 'https://github.com/dso101-cicd-assignment'
+                url: 'https://github.com/dso101-cicd-assignment.git'
             }
         }
 
