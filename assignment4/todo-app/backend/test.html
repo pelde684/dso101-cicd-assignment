@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Todo API</title>
+</head>
+<body>
+    <input type="text" id="task" placeholder="Enter task">
+    <button onclick="addTodo()">Add Todo</button>
+    <ul id="todos"></ul>
+
+    <script>
+        async function loadTodos() {
+            const res = await fetch('http://localhost:5000/api/todos');
+            const todos = await res.json();
+            document.getElementById('todos').innerHTML = 
+                todos.map(t => `<li>${t.task}</li>`).join('');
+        }
+
+        async function addTodo() {
+            const task = document.getElementById('task').value;
+            await fetch('http://localhost:5000/api/todos', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ task })
+            });
+            loadTodos();
+        }
+
+        loadTodos();
+    </script>
+</body>
+</html>
