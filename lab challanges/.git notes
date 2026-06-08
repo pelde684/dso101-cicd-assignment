@@ -1,0 +1,607 @@
+# DevOps Notes
+
+# Unit I: Containerization with Docker
+
+## 1.1 Introduction to Docker
+
+### Containerization Concepts
+
+* Containerization packages an application with its dependencies.
+* Containers share the host OS kernel.
+* Lightweight and faster than virtual machines.
+* Ensures consistency across environments.
+
+### Docker Architecture
+
+Components:
+
+* Docker Client: User interface for Docker commands.
+* Docker Daemon (dockerd): Manages containers and images.
+* Docker Host: System running Docker.
+* Docker Registry: Stores Docker images (e.g., Docker Hub).
+
+### Docker vs Virtual Machines
+
+| Docker Containers    | Virtual Machines    |
+| -------------------- | ------------------- |
+| Lightweight          | Heavyweight         |
+| Share host OS kernel | Separate guest OS   |
+| Faster startup       | Slower startup      |
+| Less resource usage  | More resource usage |
+
+## 1.2 Working with Docker
+
+### Installing Docker
+
+* Download Docker Engine or Docker Desktop.
+* Verify installation:
+
+```bash
+docker --version
+```
+
+### Docker CLI Basics
+
+```bash
+docker ps
+docker images
+docker pull nginx
+docker run nginx
+docker stop <container_id>
+docker rm <container_id>
+```
+
+### Pulling and Running Images
+
+```bash
+docker pull ubuntu
+docker run -it ubuntu bash
+docker run -d -p 80:80 nginx
+```
+
+## 1.3 Building Docker Images
+
+### Dockerfile Syntax
+
+Example:
+
+```dockerfile
+FROM node:18
+WORKDIR /app
+COPY . .
+RUN npm install
+CMD ["npm","start"]
+```
+
+### Building Custom Images
+
+```bash
+docker build -t myapp .
+```
+
+### Best Practices
+
+* Use official base images.
+* Minimize image layers.
+* Use .dockerignore.
+* Avoid storing secrets in images.
+
+## 1.4 Docker Networking
+
+### Network Types
+
+* Bridge (default)
+* Host
+* None
+* Overlay
+
+### Create Network
+
+```bash
+docker network create mynetwork
+```
+
+### Container Communication
+
+```bash
+docker run --network=mynetwork nginx
+```
+
+## 1.5 Docker Volumes
+
+### Storage Drivers
+
+* Manage container filesystem storage.
+* Examples: overlay2, aufs.
+
+### Create Volume
+
+```bash
+docker volume create myvolume
+```
+
+### Persist Data
+
+```bash
+docker run -v myvolume:/data nginx
+```
+
+# Unit II: Docker Compose
+
+## 2.1 Introduction
+
+### Compose File Structure
+
+```yaml
+version: '3'
+services:
+  web:
+    image: nginx
+```
+
+### Defining Services, Networks, Volumes
+
+```yaml
+services:
+  db:
+    image: mysql
+volumes:
+  data:
+networks:
+  appnet:
+```
+
+## 2.2 Multi-Container Applications
+
+### Example
+
+```yaml
+services:
+  frontend:
+    image: nginx
+
+  backend:
+    image: node
+```
+
+### Scaling Services
+
+```bash
+docker compose up --scale web=3
+```
+
+### Compatibility
+
+* Use supported compose versions.
+* Prefer latest stable syntax.
+
+## 2.3 Development Environment
+
+### Local Development
+
+```bash
+docker compose up
+```
+
+### Debugging Containers
+
+```bash
+docker logs container_name
+docker exec -it container_name bash
+```
+
+### Compose Overrides
+
+```yaml
+docker-compose.override.yml
+```
+
+## 2.4 Best Practices
+
+### Organizing Files
+
+* Keep services modular.
+* Separate production and development files.
+
+### Environment Variables
+
+```yaml
+environment:
+  - DB_HOST=mysql
+```
+
+### Health Checks
+
+```yaml
+healthcheck:
+  test: ["CMD","curl","-f","http://localhost"]
+```
+
+# Unit III: Docker Optimization & Registry
+
+## 3.1 Optimizing Images
+
+### Multi-Stage Builds
+
+```dockerfile
+FROM node AS build
+RUN npm install
+
+FROM nginx
+COPY --from=build /app .
+```
+
+### Reduce Image Size
+
+* Use Alpine images.
+* Remove unnecessary files.
+
+### Caching Strategies
+
+* Place frequently changing instructions later.
+* Cache dependency installations.
+
+## 3.2 Docker Registries
+
+### Docker Hub
+
+* Public image repository.
+* Supports private repositories.
+
+### Push Image
+
+```bash
+docker push username/image:tag
+```
+
+### Pull Image
+
+```bash
+docker pull username/image:tag
+```
+
+### Tagging Strategy
+
+```bash
+docker tag app:v1 app:latest
+```
+
+# Unit IV: CI/CD and Jenkins
+
+## 4.1 CI/CD Concepts
+
+### Continuous Integration (CI)
+
+* Frequent code integration.
+* Automated testing.
+
+### Continuous Delivery vs Deployment
+
+Continuous Delivery:
+
+* Ready for deployment.
+
+Continuous Deployment:
+
+* Automatically deployed.
+
+### Benefits
+
+* Faster releases.
+* Improved quality.
+* Reduced manual work.
+
+## 4.2 Jenkins Architecture
+
+### Components
+
+* Jenkins Controller
+* Build Agents
+* Plugins
+
+### Installation
+
+```bash
+java -jar jenkins.war
+```
+
+### Build Agents
+
+* Execute jobs on separate machines.
+
+## 4.3 Jenkins Jobs
+
+### Create Job
+
+* Freestyle Project
+* Pipeline Project
+
+### Build Triggers
+
+* Poll SCM
+* Webhooks
+* Scheduled builds
+
+### Post-Build Actions
+
+* Email notifications
+* Archive artifacts
+
+## 4.4 Jenkins Pipeline
+
+### Jenkinsfile Example
+
+```groovy
+pipeline {
+    agent any
+
+    stages {
+        stage('Build') {
+            steps {
+                echo 'Building'
+            }
+        }
+    }
+}
+```
+
+### Pipeline Stages
+
+* Build
+* Test
+* Deploy
+
+# Unit V: Advanced Jenkins
+
+## 5.1 Declarative vs Scripted
+
+### Declarative
+
+```groovy
+pipeline {
+    agent any
+}
+```
+
+### Scripted
+
+```groovy
+node {
+    stage('Build') {
+        echo 'Building'
+    }
+}
+```
+
+### Choosing
+
+* Declarative = Simple.
+* Scripted = Flexible.
+
+## 5.2 Pipeline as Code
+
+### Version Control
+
+* Store Jenkinsfile in Git.
+
+### Shared Libraries
+
+* Reusable pipeline code.
+
+### Reusable Components
+
+* Reduce duplication.
+
+## 5.3 Integration
+
+### Source Control
+
+* Git
+* GitHub
+* GitLab
+
+### Build Tools
+
+* Maven
+* Gradle
+* npm
+
+### Artifact Repositories
+
+* Nexus
+* Artifactory
+
+## 5.4 Testing
+
+### Unit Testing
+
+* Tests individual components.
+
+### Integration Testing
+
+* Tests component interactions.
+
+### Test Reports
+
+* JUnit reports.
+* Coverage reports.
+
+# Unit VI: Jenkins Security & Best Practices
+
+## 6.1 Security
+
+### Authentication
+
+* User login verification.
+
+### Authorization
+
+* Role-based permissions.
+
+### Credential Management
+
+* Store passwords securely.
+
+## 6.2 Pipeline Optimization
+
+### Parallel Stages
+
+```groovy
+parallel {
+    stage('Test1') {}
+    stage('Test2') {}
+}
+```
+
+### Caching
+
+* Reuse dependencies.
+
+### Performance Tuning
+
+* Optimize agents and resources.
+
+## 6.3 Monitoring & Logging
+
+### Monitoring
+
+* Track Jenkins health.
+
+### Logging
+
+* Analyze build logs.
+
+### Auditing
+
+* Track user activities.
+
+## 6.4 Best Practices
+
+### Design Patterns
+
+* Modular pipelines.
+
+### Error Handling
+
+```groovy
+try {
+}
+catch(Exception e) {
+}
+```
+
+### Documentation
+
+* Maintain clear project docs.
+
+# Unit VII: GitHub Actions
+
+## 7.1 Introduction
+
+### Concepts
+
+* Workflow
+* Job
+* Step
+* Action
+
+### Workflow Structure
+
+```yaml
+name: CI
+on: push
+jobs:
+```
+
+### GitHub Actions vs Jenkins
+
+GitHub Actions:
+
+* Built into GitHub.
+
+Jenkins:
+
+* Self-hosted and highly customizable.
+
+## 7.2 Creating Workflows
+
+### Jobs and Steps
+
+```yaml
+jobs:
+  build:
+    runs-on: ubuntu-latest
+```
+
+### Pre-Built Actions
+
+```yaml
+uses: actions/checkout@v4
+```
+
+### Custom Actions
+
+* User-created reusable actions.
+
+## 7.3 CI/CD with GitHub Actions
+
+### Build and Test
+
+```yaml
+- run: npm test
+```
+
+### Deployment
+
+```yaml
+- run: npm run deploy
+```
+
+### Automated Releases
+
+* Create tags.
+* Generate release artifacts.
+
+## 7.4 Advanced Configuration
+
+### Matrix Builds
+
+```yaml
+strategy:
+  matrix:
+    node-version: [16,18,20]
+```
+
+### Secrets
+
+```yaml
+${{ secrets.API_KEY }}
+```
+
+### Caching
+
+```yaml
+uses: actions/cache@v4
+```
+
+## Quick Definitions
+
+Docker = Container platform.
+
+Container = Lightweight isolated application environment.
+
+Docker Image = Blueprint for containers.
+
+Dockerfile = Instructions to build images.
+
+Docker Compose = Tool for managing multiple containers.
+
+CI = Continuous Integration.
+
+CD = Continuous Delivery/Deployment.
+
+Jenkins = Automation server for CI/CD.
+
+Pipeline = Automated workflow.
+
+GitHub Actions = GitHub's CI/CD platform.
